@@ -1,74 +1,62 @@
-# Cloud DevOps Engineer Capstone Project
+# p6-udacity-devops-capstone
+Cloud DevOps Nanodegree program - The final CAPSTONE project
 
-This project represents the successful completion of the last final Capstone project and the Cloud DevOps Engineer Nanodegree at Udacity.
+## Table of contents
+* [General info](#general-info)
+* [Folder structure](#folder-structure)
+* [Tools](#technologies)
+* [Usage](#setup)
+* [Result](#result)
 
-## What did I learn?
+## General info
+CI/CD pipeline for deploying and linting a microservices application NGINX using Rolling Deployment. Pipeline will containerize application and push the docker image to the Docker Hub.  After that it will create the AWS network infrastructure required to deploy the applicion, AWS EKS Cluster & Nodes and it will deploy application to the EKS Cluster. At the end it will test the cluster and update the cluster with the new image using Rolling Deployment. 
 
-In this project, I applied the skills and knowledge I developed throughout the Cloud DevOps Nanodegree program. These include:
-- Using Circle CI to implement Continuous Integration and Continuous Deployment
-- Building pipelines
-- Working with Ansible and CloudFormation to deploy clusters
-- Building Kubernetes clusters
-- Building Docker containers in pipelines
-- Working in AWS
+## Folder structure
+* docker-nginx : Source Files
+* iaac : Infrastructure as a code - Deployment Files
+* .circleci : Configuration File for CircleCI & Kubernetes deployment and service files
+	
+## Tools
+Project is created with:
 
-## Application
+* CirleCI
+* CloudFormation
+* AWS
+* Kubernetes
+* Docker Hub
+* GitHub
+	
+## Usage
+To run this project in CircleCI, you have to:
 
-The Application is based on a python3 script using <a target="_blank" href="https://flask.palletsprojects.com">flask</a> to render a simple webpage in the user's browser.
-A requirements.txt is used to ensure that all needed dependencies come along with the Application.
-
-## Kubernetes Cluster
-
-I used AWS CloudFormation to deploy the Kubernetes Cluster.
-The CloudFormation Deployment can be broken down into four Parts:
-- **Networking**, to ensure new nodes can communicate with the Cluster
-- **Elastic Kubernetes Service (EKS)** is used to create a Kubernetes Cluster
-- **NodeGroup**, each NodeGroup has a set of rules to define how instances are operated and created for the EKS-Cluster
-- **Management** is needed to configure and manage the Cluster and its deployments and services. I created two management hosts for extra redundancy if one of them fails.
-
-#### List of deployed Stacks:
-![CloudFormation](./screenshots/cloudformation_stacks.PNG)
-
-#### List of deployed Instances:
-![Show Instances](./screenshots/show_instances.PNG)
-
-## CircleCi - CI/CD Pipelines
-
-I used CircleCi to create a CI/CD Pipeline to test and deploy changes manually before they get deployed automatically to the Cluster using Ansible.
-
-#### From Zero to Hero demonstration:
-
-![CircleCi Pipeline](./screenshots/circleci_pipeline.PNG)
-
-## Linting using Pylint and Hadolint
-
-Linting is used to check if the Application and Dockerfile is syntactically correct.
-This process makes sure that the code quality is always as good as possible.
-
-#### This is the output when the step fails:
-
-![Linting step fail](./screenshots/linting_step_fail.PNG)
-
-
-#### This is the output when the step passes:
-
-![Linting step fail](./screenshots/linting_step_success.PNG)
-
-## Access the Application
-
-After the EKS-Cluster has been successfully configured using Ansible within the CI/CD Pipeline, I checked the deployment and service as follows:
+* Fork the project to your Github Account
+* Setup and Configure CirceCI account with Github and AWS Credentials
+* Setup DockerHub account. Save username and password to your local computer, you will need it.
+* AWS : configure default VPC  and Key Pair. Store Access key id and secret access key to your local computer, you will need it.
+* Configure enviroment variables AWS_DEAFULT_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, DOCKERHUB_PASSWORD, DOCKERHUB_USERNAME in your CircleCI account
+* Change SSHKeyName Value with your AWS Key Pair name (ec2-params.json)
+* Use imageid compliant with your AWS Region (ec2-params.json)
+* Change the build job from config.yml in order to include your DockerHub credentials, for example :
 
 ```
-$ kubectl get deployments
-NAME                          READY   UP-TO-DATE   AVAILABLE   AGE
-capstone-project-deployment   4/4     4            4           68m
+docker build -t melisa87/udacity:capstone  .
+docker push melisa87/udacity:capstone
 
-$ kubectl get services
-NAME                       TYPE           CLUSTER-IP       EXTERNAL-IP                                                                  PORT(S)        AGE
-capstone-project-service   LoadBalancer   10.100.240.221   a9d7166a2525d405db00907ffb57de4e-1479088191.eu-central-1.elb.amazonaws.com   80:32299/TCP   69m
-kubernetes                 ClusterIP      10.100.0.1       <none>                                                                       443/TCP        80m
+```
+* Change the scripts deployment-and-service.yml and deployment-and-servicev2.yml (for Rolling Update) with the name of your image from the Docker Hub, for example:
+
+```
+containers:
+        - image: melisa87/udacity:capstone2
+          imagePullPolicy: Always
+          name: capstone-nginx
+          ports:
+            - containerPort: 80
 ```
 
-Public LB DNS: http://a9d7166a2525d405db00907ffb57de4e-1479088191.eu-central-1.elb.amazonaws.com
+## Result 
 
-![Access LB DNS](./screenshots/access_lb_dns_demo.PNG)
+If you open the URL of your Load Balancer from AWS, you will be able to see deployed application:
+
+
+
