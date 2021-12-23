@@ -56,7 +56,8 @@ containers:
 
 ## Result 
 
-If you open the URL of your Load Balancer from AWS, you will be able to see deployed application:
+LoadBalancer URL:
+http://aed592bd62db34dde95afda0e4504b71-2027743996.us-east-1.elb.amazonaws.com
 
 
 
